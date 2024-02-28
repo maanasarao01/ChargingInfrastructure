@@ -120,8 +120,8 @@ describe('Charging Infrastructure CRUD Operations', () => {
 
   // Find ChargingPoints for a given location
   it('should find charging points for a given location', async () => {
-    const res = await request(app).get('/charging-stations/charging-points/Majestic');
-    expect(res.body).to.have.property('message').to.equal('Found');
+    const result = await request(app).get('/charging-stations/charging-points/Majestic');
+    expect(result.body).to.have.property('message').to.equal('Found');
   });
 
   it('should fail to find charging points for an unavailable location', async () => {
@@ -131,9 +131,9 @@ describe('Charging Infrastructure CRUD Operations', () => {
 
   // Find Connector for a given location
   it('should find Connector for a given location', async () => {
-    const res =
+    const found =
     await request(app).get('/charging-stations/connectors/Girinagar/DC%20Fast%20Charging');
-    expect(res.body).to.have.property('message').to.equal('Found');
+    expect(found.body).to.have.property('message').to.equal('Found');
   });
 
   it('should fail on unavailable Connectors for a given location', async () => {
