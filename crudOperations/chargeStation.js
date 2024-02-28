@@ -25,14 +25,6 @@ async function create(id, type, connector, wattage, manufacturer, ChargePointID,
   }
 }
 
-/* async function displayAllConnectors() {
-  const connectors = await chargingStation.find({});
-  connectors.forEach((connector) => {
-    console.log('\n'+connector);
-  });
-  console.log('\n');
-}*/
-
 // Function to find ChargingPoints
 async function findChargingPoints(location) {
   const place = new RegExp(location, 'i');
@@ -44,7 +36,7 @@ async function findConnector(location, connectorType) {
   const place = new RegExp(location, 'i');
   const found = await chargingStation.find({'location': {$regex: place},
     'chargePoint.connector.type': connectorType});
-  return found.length>0?'Found':'Connector Unavailaible';
+  return found.length>0?'Availaible':'Connector Unavailaible';
 }
 
 // Function to update Wattage of connector by ID

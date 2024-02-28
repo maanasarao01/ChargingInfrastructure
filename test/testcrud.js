@@ -133,7 +133,7 @@ describe('Charging Infrastructure CRUD Operations', () => {
   it('should find Connector for a given location', async () => {
     const found =
     await request(app).get('/charging-stations/connectors/Girinagar/DC%20Fast%20Charging');
-    expect(found.body).to.have.property('message').to.equal('Found');
+    expect(found.body).to.have.property('message').to.equal('Availaible');
   });
 
   it('should fail on unavailable Connectors for a given location', async () => {
