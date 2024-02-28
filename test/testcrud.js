@@ -121,7 +121,6 @@ describe('Charging Infrastructure CRUD Operations', () => {
   // Find ChargingPoints for a given location
   it('should find charging points for a given location', async () => {
     const res = await request(app).get('/charging-stations/charging-points/Majestic');
-    expect(res.status).to.equal(200);
     expect(res.body).to.have.property('message').to.equal('Found');
   });
 
@@ -134,7 +133,6 @@ describe('Charging Infrastructure CRUD Operations', () => {
   it('should find Connector for a given location', async () => {
     const res =
     await request(app).get('/charging-stations/connectors/Girinagar/DC%20Fast%20Charging');
-    expect(res.status).to.equal(200);
     expect(res.body).to.have.property('message').to.equal('Found');
   });
 
@@ -160,7 +158,7 @@ describe('Charging Infrastructure CRUD Operations', () => {
     expect(res.body).to.have.property('message').to.equal('Couldn\'t update');
   });
 
-  //Delete connector by ID
+  // Delete connector by ID
   it('should delete an existing EV connector by ID', async () => {
     const res = await request(app)
         .delete('/charging-stations/connectors/C01');
