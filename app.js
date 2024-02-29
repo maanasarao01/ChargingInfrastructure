@@ -15,7 +15,7 @@ function getPORT() {
   return PORT;
 }
 
-const server=app.listen(() =>
+const server=app.listen(getPORT(), ()=>
   app.set('message', `Server running on port ${getPORT()}`),
 );
 
