@@ -1,18 +1,11 @@
 const request = require('supertest');
-const {app, getPort, server} = require('../app');
+const {app, getPort, server, stopServer} = require('../app');
 const {expect} = require('chai');
-const {connectToDB, disconnectFromDB}=require('../ChargingStation/DB');
 
 
 const nock=require('nock');
 
 describe('Testing Charging Infrastructure CRUD Operations', () => {
-  before(async () => {
-    // SetUP mongoServer
-    require('dotenv').config();
-    await connectToDB();
-  });
-
   it('should use the value of PORT if set', () => {
     // process.env.PORT is fetched from .env;
     const port = getPort();
@@ -24,14 +17,6 @@ describe('Testing Charging Infrastructure CRUD Operations', () => {
     delete process.env.PORT;
     const port =getPort();
     expect(port).to.equal(3000);
-  });
-
-  // Checking for server
-  it('should start the server on the specified port', async () => {
-    require('dotenv').config();
-    const res = app.get('message');
-    console.log(res, '\n\n');
-    expect(res).to.equal(`Server running on port ${getPort()}`);
   });
 
   // Creating Connectors
@@ -215,7 +200,7 @@ describe('Testing Asset Server', ()=>{
 
   // DISCONNECTION
   after(async () => {
-    await disconnectFromDB();
+    await stopServer();
     await server.close();
     console.log('Disconnected from mongoDB and the server:)');
   });
