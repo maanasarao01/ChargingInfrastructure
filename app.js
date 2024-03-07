@@ -18,8 +18,8 @@ function getPort() {
   return PORT;
 }
 
-const server=app.listen(getPORT(), ()=>
-  app.set('message', `Server running on port ${getPORT()}`),
+const server=app.listen(getPort(), ()=>
+  app.set('message', `Server running on port ${getPort()}`),
 );
 
 module.exports = {app, server, getPort};

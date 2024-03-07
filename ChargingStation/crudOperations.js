@@ -25,7 +25,7 @@ async function create(id, type, connector, wattage, manufacturer, ChargePointID,
   }
 }
 
-//read Operations
+// read Operations
 async function findChargingPoints(location) {
   const place = new RegExp(location, 'i');
   const found = await chargingStation.find({'location': {$regex: place}});
@@ -42,9 +42,9 @@ async function findConnectorOfType(location, connectorType) {
 
 // Function to update Wattage of connector by ID
 async function updateWattageOfConnectorById(id, upgradeWatt) {
-  const updatedWattage=await chargingStation.updateOne(
+  const updatedPower=await chargingStation.updateOne(
       {'chargePoint.connector._id': id}, {$set: {'chargePoint.connector.wattage': upgradeWatt}});
-  return updatedWattage.modifiedCount>0?'Updated successfully':
+  return updatedPower.modifiedCount>0?'Updated successfully':
           'Couldn\'t update';
 }
 
