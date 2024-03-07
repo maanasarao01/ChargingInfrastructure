@@ -212,10 +212,6 @@ describe('Testing Asset Server', ()=>{
     await mongoServer.stop();
     nock.cleanAll();
 
-    await stopServer();
-    await server.close();
-    nock.cleanAll()
-
     console.log('Disconnected from mongoDB and the server:)');
   });
 });
