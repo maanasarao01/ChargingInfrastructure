@@ -13,7 +13,7 @@ describe('Testing Charging Infrastructure CRUD Operations', () => {
   });
 
   it('should use the value of PORT if set', () => {
-    // process.env.PORT is fetched from .env;
+    // process.env.PORT is fetched
     const port = getPort();
     expect(port).to.equal(3003);
   });
