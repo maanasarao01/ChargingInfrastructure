@@ -189,6 +189,7 @@ describe('Testing Asset Server', ()=>{
   after(async () => {
     await stopServer();
     await server.close();
+    nock.cleanAll()
     console.log('Disconnected from mongoDB and the server:)');
   });
 });
