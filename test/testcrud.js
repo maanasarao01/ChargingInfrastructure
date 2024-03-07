@@ -9,6 +9,7 @@ const nock=require('nock');
 describe('Testing Charging Infrastructure CRUD Operations', () => {
   before(async () => {
     // SetUP mongoServer
+    require('dotenv').config();
     await connectToDB();
   });
 
