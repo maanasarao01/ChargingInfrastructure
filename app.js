@@ -9,14 +9,17 @@ const chargeStationRoutes = require('./routes/chargeStationRoutes');
 // Route for charge station operations
 app.use('/charging-stations', chargeStationRoutes);
 
+
+require('dotenv').config();
+
 // Start server
-function getPORT() {
+function getPort() {
   const PORT = parseInt(process.env.PORT, 10) || 3000;
   return PORT;
 }
 
-const server=app.listen(() =>
-  app.set('message', `Server running on port ${getPORT()}`),
-);
+const server=app.listen(getPort(), () =>{
+  app.set('message', `Server running on port ${getPort()}`);
+});
 
-module.exports = {app, server, getPORT};
+module.exports = {app, server, getPort};

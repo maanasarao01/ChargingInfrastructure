@@ -1,40 +1,36 @@
 const request = require('supertest');
-const {app, getPORT, server} = require('../app');
+const {app, getPort, server} = require('../app');
 const {expect} = require('chai');
-const mongoose=require('mongoose');
-const {MongoMemoryServer} = require('mongodb-memory-server');
+const {connectToDB, disconnectFromDB}=require('../ChargingStation/DB');
 
-let mongoServer;
 
-describe('Charging Infrastructure CRUD Operations', () => {
+const nock=require('nock');
+
+describe('Testing Charging Infrastructure CRUD Operations', () => {
   before(async () => {
     // SetUP mongoServer
-    mongoServer = new MongoMemoryServer();
-    await mongoServer.start();
-    const mongoUri = await mongoServer.getUri();
-    await mongoose.connect(mongoUri);
-    console.log('Successfully connected!\n');
+    await connectToDB();
   });
 
   it('should use the value of PORT if set', () => {
-    // set Custom port number
-    process.env.PORT=5000;
-    const port = getPORT();
-    expect(port).to.equal(5000);
+    // process.env.PORT is fetched from .env;
+    const port = getPort();
+    expect(port).to.equal(3003);
   });
 
-  it('should default to 3000 if PORT is not set', () => {
+  it('should default to 3000 if PORT is not set', async () => {
     // Clear PORT environment variable
     delete process.env.PORT;
-    const port =getPORT();
+    const port =getPort();
     expect(port).to.equal(3000);
   });
 
   // Checking for server
   it('should start the server on the specified port', async () => {
+    require('dotenv').config();
     const res = app.get('message');
     console.log(res, '\n\n');
-    expect(res).to.equal(`Server running on port ${getPORT()}`);
+    expect(res).to.equal(`Server running on port ${getPort()}`);
   });
 
   // Creating Connectors
@@ -107,7 +103,7 @@ describe('Charging Infrastructure CRUD Operations', () => {
   });
 
   it('should fail to create a connector with undefined/empty fields', async () => {
-    const res = await request(app)
+    const Connector = await request(app)
         .post('/charging-stations/connectors')
         .send({
           id: '',
@@ -115,68 +111,110 @@ describe('Charging Infrastructure CRUD Operations', () => {
           connector: 'China',
         });
 
-    expect(res.body).to.have.property('message').to.equal('Insertion Unsuccessful');
+    expect(Connector.body).to.have.property('message').to.equal('Insertion Unsuccessful');
   });
 
   // Find ChargingPoints for a given location
-  it('should find charging points for a given location', async () => {
-    const result = await request(app).get('/charging-stations/charging-points/Majestic');
-    expect(result.body).to.have.property('message').to.equal('Found');
+  it('should find ChargingPoints for a given location', async () => {
+    const foundCP = await request(app).get('/charging-stations/charging-points/Majestic');
+    expect(foundCP.body).to.have.property('message').to.equal('Found');
   });
 
-  it('should fail to find charging points for an unavailable location', async () => {
-    const res = await request(app).get('/charging-stations/charging-points/Mumbai');
-    expect(res.body).to.have.property('message').to.equal('No ChargingPoints Here');
+  it('should fail on finding non-availaible CPs in given location', async () => {
+    const CP = await request(app).get('/charging-stations/charging-points/Padubidri');
+    expect(CP.body).to.have.property('message').to.equal('No CPs here');
   });
 
   // Find Connector for a given location
   it('should find Connector for a given location', async () => {
-    const found =
+    const foundConnector =
     await request(app).get('/charging-stations/connectors/Girinagar/DC%20Fast%20Charging');
-    expect(found.body).to.have.property('message').to.equal('Availaible');
+    expect(foundConnector.body).to.have.property('message').to.equal('Availaible');
   });
 
   it('should fail on unavailable Connectors for a given location', async () => {
-    const res = await request(app).get('/charging-stations/connectors/Delhi/Type%202%20AC');
-    expect(res.body).to.have.property('message').to.equal('Connector Unavailaible');
+    const connectorUnavailaible =
+    await request(app).get('/charging-stations/connectors/Delhi/Type%202%20AC');
+    expect(connectorUnavailaible.body).to.have.property('message')
+        .to.equal('Connector Unavailaible');
   });
 
 
   // Update Wattage of Connector by ID
   it('should update Wattage of a connector by ID', async () => {
-    const res = await request(app)
+    const updatedWattage = await request(app)
         .put('/charging-stations/connectors/C03')
         .send({wattage: 30});
-    expect(res.status).to.equal(200);
-    expect(res.body).to.have.property('message').to.equal('Updated successfully');
+    expect(updatedWattage.status).to.equal(200);
+    expect(updatedWattage.body).to.have.property('message').to.equal('Updated successfully');
   });
 
   it('should fail on attempting to update a non existing EV connector by ID', async () => {
-    const res = await request(app)
+    const updateFailed = await request(app)
         .put('/charging-stations/connectors/C09')
         .send({wattage: 100});
-    expect(res.body).to.have.property('message').to.equal('Couldn\'t update');
+    expect(updateFailed.body).to.have.property('message').to.equal('Couldn\'t update');
   });
 
   // Delete connector by ID
   it('should delete an existing EV connector by ID', async () => {
-    const res = await request(app)
+    const deletedConnector = await request(app)
         .delete('/charging-stations/connectors/C01');
-    expect(res.status).to.equal(200);
-    expect(res.body).to.have.property('message').to.equal('Deleted successfully');
+    expect(deletedConnector.status).to.equal(200);
+    expect(deletedConnector.body).to.have.property('message').to.equal('Deleted successfully');
   });
 
   it('shouldn\'t delete a non existing EV connector by ID', async () => {
-    const res = await request(app)
+    const connectorNotFound = await request(app)
         .delete('/charging-stations/connectors/C07');
-    expect(res.body).to.have.property('message').to.equal('Couldn\'t delete');
+    expect(connectorNotFound.body).to.have.property('message').to.equal('Couldn\'t delete');
+  });
+});
+
+
+describe('Testing Asset Server', ()=>{
+  // Find Connectors for a given ID
+  it('should find Connector for a given ID and return estimated Time', async () => {
+    // mocking Estimation Server
+    nock('http://localhost:2000')
+        .get('/estimate-charging-time')
+        .query(true)
+        .reply(200, {estimatedTime: 1.08});
+
+    const estimatedTime = await request(app).get('/charging-stations/estimate-charging-time/C03')
+        .query({
+          batteryCapacity: 40,
+          SoC: 35,
+        });
+    expect(estimatedTime.body).to.have.property('message').to.equal(1.08);
+  });
+
+  it('should fail to find Connector for an invalid ID', async () => {
+    const invalidConnectorID =
+        await request(app).get('/charging-stations/estimate-charging-time/C08')
+            .query({
+              batteryCapacity: 30,
+              SoC: 50,
+            });
+    expect(invalidConnectorID.body).to.have.property('message').to.equal('Unavailaible');
+  });
+
+  it('should return Invalid on incomplete or bad requests', async () => {
+    nock('http://localhost:2000')
+        .get('/estimate-charging-time')
+        .query(true)
+        .reply(200, {message: 'Invalid Input'});
+
+    const badRequest = await request(app).get('/charging-stations/estimate-charging-time/C02')
+        .query({
+          batteryCapacity: undefined,
+        });
+    expect(badRequest.body).to.have.property('message').to.equal('Invalid Input');
   });
 
   // DISCONNECTION
   after(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    await disconnectFromDB();
     await server.close();
     console.log('Disconnected from mongoDB and the server:)');
   });
