@@ -1,11 +1,17 @@
 const request = require('supertest');
 const {app, getPort, server, stopServer} = require('../app');
 const {expect} = require('chai');
+const {connectToDB}=require('../ChargingStation/DB');
 
 
 const nock=require('nock');
 
 describe('Testing Charging Infrastructure CRUD Operations', () => {
+  before(async () => {
+    // SetUP mongoServer
+    await connectToDB();
+  });
+
   it('should use the value of PORT if set', () => {
     // process.env.PORT is fetched from .env;
     const port = getPort();

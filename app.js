@@ -1,15 +1,16 @@
 const express = require('express');
 const app = express();
 
-const {connectToDB, disconnectFromDB}=require('./ChargingStation/DB');
+const {/* connectToDB,*/ disconnectFromDB}=require('./ChargingStation/DB');
 
 app.use(express.json());
 
 require('dotenv').config();
 
-before(async ()=>{
+// uncomment the above import and below block before executing the app
+/* before(async ()=>{
   await connectToDB();
-});
+});*/
 
 async function stopServer() {
   await disconnectFromDB();
