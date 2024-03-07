@@ -1,16 +1,15 @@
 const express = require('express');
 const app = express();
 
-const {/* connectToDB,*/ disconnectFromDB}=require('./ChargingStation/DB');
+const {connectToDB, disconnectFromDB}=require('./ChargingStation/DB');
 
 app.use(express.json());
 
 require('dotenv').config();
 
-// uncomment the above import and below block before executing the app
-/* before(async ()=>{
+before(async ()=>{
   await connectToDB();
-});*/
+});
 
 async function stopServer() {
   await disconnectFromDB();
@@ -22,15 +21,10 @@ const chargeStationRoutes = require('./routes/chargeStationRoutes');
 // Route for charge station operations
 app.use('/charging-stations', chargeStationRoutes);
 
+const port=process.env.PORT;
 
-// Start server
-function getPort() {
-  const PORT = parseInt(process.env.PORT, 10) || 3000;
-  return PORT;
-}
-
-const server=app.listen(getPort(), ()=>{
-  console.log(`Server running on port ${getPort()}`);
+const server=app.listen(port, ()=>{
+  console.log(`Server running on port ${port}`);
 });
 
-module.exports = {app, server, getPort, stopServer};
+module.exports = {app, server, stopServer};
