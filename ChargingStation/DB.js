@@ -1,13 +1,7 @@
 const mongoose=require('mongoose');
-const {MongoMemoryServer} = require('mongodb-memory-server');
 
-let mongoServer;
-
-async function connectToDB() {
+async function connectToDB(mongoUri) {
   // SetUP mongoServer
-  mongoServer = new MongoMemoryServer();
-  await mongoServer.start();
-  const mongoUri = process.env.mongo_URI;
   await mongoose.connect(mongoUri);
   console.log(mongoUri);
   console.log('Successfully connected!\n');
@@ -16,7 +10,6 @@ async function connectToDB() {
 async function disconnectFromDB() {
   await mongoose.connection.dropDatabase();
   await mongoose.disconnect();
-  await mongoServer.stop();
 }
 
 

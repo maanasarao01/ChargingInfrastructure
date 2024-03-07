@@ -1,30 +1,35 @@
 const express = require('express');
-const app = express();
 
-const {connectToDB, disconnectFromDB}=require('./ChargingStation/DB');
+// uncomment all the commented codes when executing in production
 
-app.use(express.json());
+// const {connectToDB}=require('./ChargingStation/DB');
 
 require('dotenv').config();
+let server;
 
-before(async ()=>{
-  await connectToDB();
-});
+async function startServer() {
+  return new Promise((resolve) => {
+    const app = express();
+    app.use(express.json());
 
-async function stopServer() {
-  await disconnectFromDB();
+    const chargeStationRoutes = require('./routes/chargeStationRoutes');
+    app.use('/charging-stations', chargeStationRoutes);
+
+    const port=process.env.PORT;
+
+    server = app.listen(port, () => {
+      app.set('message', `Server running on port ${port}\n`);
+      resolve(app); // Resolve with the app instance once the server is started
+    });
+  });
 }
 
-// import Routes
-const chargeStationRoutes = require('./routes/chargeStationRoutes');
+function stopServer() {
+  server.close();
+}
 
-// Route for charge station operations
-app.use('/charging-stations', chargeStationRoutes);
+// startServer()
+// connectToDB(process.env.mongo_URI)
 
-const port=process.env.PORT;
 
-const server=app.listen(port, ()=>{
-  console.log(`Server running on port ${port}`);
-});
-
-module.exports = {app, server, stopServer};
+module.exports = {startServer, stopServer};

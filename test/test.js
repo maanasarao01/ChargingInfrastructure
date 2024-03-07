@@ -1,11 +1,31 @@
 const request = require('supertest');
-const {app, server, stopServer} = require('../app');
+const {startServer, stopServer} = require('../app');
 const {expect} = require('chai');
-
+const {connectToDB, disconnectFromDB}=require('../ChargingStation/DB');
+const {MongoMemoryServer} = require('mongodb-memory-server');
 
 const nock=require('nock');
+let mongoServer;
+let app;
 
 describe('Testing Charging Infrastructure CRUD Operations', () => {
+  before('Connecting to Database', async ()=>{
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    process.env.mongo_URI = mongoUri;
+    await connectToDB(process.env.mongo_URI);
+
+    // start server normally
+    app=await startServer();
+  });
+
+  // Checking for server
+  it('should start the server on the specified port', async () => {
+    const serverStarted = app.get('message');
+    console.log(serverStarted);
+    expect(serverStarted).to.equal(`Server running on port 3003\n`);
+  });
+
   // Creating Connectors
   it('should successfully create charging stations', async () => {
     const result1 = await request(app)
@@ -187,8 +207,10 @@ describe('Testing Asset Server', ()=>{
 
   // DISCONNECTION
   after(async () => {
-    await stopServer();
-    await server.close();
+    stopServer();
+    await disconnectFromDB();
+    await mongoServer.stop();
+    nock.cleanAll();
     console.log('Disconnected from mongoDB and the server:)');
   });
 });
