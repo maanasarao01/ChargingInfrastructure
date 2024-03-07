@@ -26,10 +26,6 @@ describe('Testing Charging Infrastructure CRUD Operations', () => {
     expect(serverStarted).to.equal(`Server running on port 3003\n`);
   });
 
-<<<<<<< HEAD:test/test.js
-=======
-describe('Testing Charging Infrastructure CRUD Operations', () => {
->>>>>>> 880436f96ac992ea0e78952b93e1296700d23eb2:test/testcrud.js
   // Creating Connectors
   it('should successfully create charging stations', async () => {
     const result1 = await request(app)
