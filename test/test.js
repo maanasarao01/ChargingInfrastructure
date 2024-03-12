@@ -169,7 +169,7 @@ describe('Testing Asset Server', ()=>{
   // Find Connectors for a given ID
   it('should find Connector for a given ID and return estimated Time', async () => {
     // mocking Estimation Server
-    nock('http://localhost:2001')
+    nock('http://localhost:2000')
         .get('/estimate-charging-time')
         .query(true)
         .reply(200, {estimatedTime: 1.08});
@@ -193,7 +193,7 @@ describe('Testing Asset Server', ()=>{
   });
 
   it('should return Invalid on incomplete or bad requests', async () => {
-    nock('http://localhost:2001')
+    nock('http://localhost:2000')
         .get('/estimate-charging-time')
         .query(true)
         .reply(200, {message: 'Invalid Input'});
