@@ -4,19 +4,19 @@ const {expect} = require('chai');
 const {connectToDB, disconnectFromDB}=require('../ChargingStation/DB');
 const {MongoMemoryServer} = require('mongodb-memory-server');
 
-const axios=require('axios')
+const axios=require('axios');
 const nock=require('nock');
 
 let mongoServer;
- 
-disconnectFromDB()
+
+disconnectFromDB();
 
 describe('Testing Charging Infrastructure CRUD Operations\n', () => {
   before('Connecting to Database', async ()=>{
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     process.env.mongo_URI = mongoUri;
-    console.log('Connecting via MongoServer')
+    console.log('Connecting via MongoServer');
     await connectToDB(process.env.mongo_URI);
   });
 
@@ -167,20 +167,18 @@ describe('Testing Charging Infrastructure CRUD Operations\n', () => {
 
 
 describe('\nTesting Asset Server\n', ()=>{
-
   // Check if server is running without using nock
   it('should pass if Estimation server is not running\n', async ()=>{
     const batteryDetails={
       powerInKW: 22,
       batteryCapacityInKWh: 35,
       socInPercentage: 40,
-    }
-    try{
-    await axios.get("http://localhost:2001/estimate-charging-time", 
-    {params: batteryDetails})
-    }
-    catch(e){
-      expect(e.code).to.equal('ECONNREFUSED')
+    };
+    try {
+      await axios.get('http://localhost:2001/estimate-charging-time',
+          {params: batteryDetails});
+    } catch (e) {
+      expect(e.code).to.equal('ECONNREFUSED');
     }
   });
 
