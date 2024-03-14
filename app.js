@@ -1,6 +1,5 @@
 const express = require('express');
-
-const {connectToDB}=require('./ChargingStation/DB');
+const mongoose=require('mongoose')
 
 require('dotenv').config();
 
@@ -21,8 +20,6 @@ function stopServer() {
   server.close();
 }
 
-(async ()=>{
-await connectToDB(process.env.mongo_URI);
-})()
+mongoose.connect(process.env.mongo_URI);
 
 module.exports = {app, stopServer};
