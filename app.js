@@ -3,7 +3,6 @@ const express = require('express');
  const {connectToDB}=require('./ChargingStation/DB');
 
 require('dotenv').config();
-let server;
  
 
     const app = express();
