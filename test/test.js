@@ -4,11 +4,6 @@ const {expect} = require('chai');
 const {connectToDB, disconnectFromDB}=require('../ChargingStation/DB');
 const {MongoMemoryServer} = require('mongodb-memory-server');
 
-async function disconnectFirst() {
-  await disconnectFromDB();
-  console.log('Disconnected from DB:(\n');
-}
-
 const axios=require('axios');
 const nock=require('nock');
 
@@ -16,7 +11,7 @@ let mongoServer;
 
 describe('Testing Charging Infrastructure CRUD Operations\n', () => {
   before('Connecting to Database', async ()=>{
-    await disconnectFirst();
+    await disconnectFromDB();
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     process.env.mongo_URI = mongoUri;
