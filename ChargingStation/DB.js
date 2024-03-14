@@ -1,7 +1,6 @@
 const mongoose=require('mongoose');
 
 async function connectToDB(mongoUri) {
-  // SetUP mongoServer
   await mongoose.connect(mongoUri);
   console.log(mongoUri);
   console.log('Successfully connected!\n');

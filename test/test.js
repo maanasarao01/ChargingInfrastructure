@@ -1,27 +1,23 @@
 const request = require('supertest');
-const {app, stopServer} = require('../app');
+const {app, startServer} = require('../Server');
 const {expect} = require('chai');
 const {connectToDB, disconnectFromDB}=require('../ChargingStation/DB');
 const {MongoMemoryServer} = require('mongodb-memory-server');
-
-async function disconnectFirst() {
-  await disconnectFromDB();
-  console.log('Disconnected from DB:(\n');
-}
 
 const axios=require('axios');
 const nock=require('nock');
 
 let mongoServer;
+let server;
 
 describe('Testing Charging Infrastructure CRUD Operations\n', () => {
   before('Connecting to Database', async ()=>{
-    await disconnectFirst();
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     process.env.mongo_URI = mongoUri;
     console.log('Connecting via MongoServer');
     await connectToDB(process.env.mongo_URI);
+    server=startServer();
   });
 
   // Checking for server
@@ -227,7 +223,7 @@ describe('\nTesting Asset Server\n', ()=>{
 
   // DISCONNECTION
   after(async () => {
-    stopServer();
+    server.close();
     await disconnectFromDB();
     await mongoServer.stop();
     nock.cleanAll();

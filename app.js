@@ -1,28 +1,10 @@
-const express = require('express');
 
-const {connectToDB}=require('./ChargingStation/DB');
-
+const {startServer}=require('./Server');
 require('dotenv').config();
 
+startServer();
 
-const app = express();
-app.use(express.json());
+const {connectToDB}=require('./ChargingStation/DB');
+connectToDB(process.env.mongo_URI);
 
-const chargeStationRoutes = require('./routes/chargeStationRoutes');
-app.use('/charging-stations', chargeStationRoutes);
 
-const port=process.env.PORT;
-
-const server = app.listen(port, () => {
-  app.set('message', `Server running on port ${port}\n`);
-});
-
-function stopServer() {
-  server.close();
-}
-
-(async ()=>{
-  connectToDB(process.env.mongo_URI);
-})();
-
-module.exports = {app, stopServer};
