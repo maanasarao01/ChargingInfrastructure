@@ -11,7 +11,6 @@ let mongoServer;
 
 describe('Testing Charging Infrastructure CRUD Operations\n', () => {
   before('Connecting to Database', async ()=>{
-    await disconnectFromDB();
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     process.env.mongo_URI = mongoUri;
