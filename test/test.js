@@ -1,22 +1,23 @@
 const request = require('supertest');
-const {startServer, stopServer} = require('../app');
+const {app, stopServer} = require('../app');
 const {expect} = require('chai');
 const {connectToDB, disconnectFromDB}=require('../ChargingStation/DB');
 const {MongoMemoryServer} = require('mongodb-memory-server');
 
+const axios=require('axios')
 const nock=require('nock');
-let mongoServer;
-let app;
 
-describe('Testing Charging Infrastructure CRUD Operations', () => {
+let mongoServer;
+ 
+disconnectFromDB()
+
+describe('Testing Charging Infrastructure CRUD Operations\n', () => {
   before('Connecting to Database', async ()=>{
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     process.env.mongo_URI = mongoUri;
+    console.log('Connecting via MongoServer')
     await connectToDB(process.env.mongo_URI);
-
-    // start server normally
-    app=await startServer();
   });
 
   // Checking for server
@@ -26,10 +27,6 @@ describe('Testing Charging Infrastructure CRUD Operations', () => {
     expect(serverStarted).to.equal(`Server running on port 3003\n`);
   });
 
-<<<<<<< HEAD:test/test.js
-=======
-describe('Testing Charging Infrastructure CRUD Operations', () => {
->>>>>>> 880436f96ac992ea0e78952b93e1296700d23eb2:test/testcrud.js
   // Creating Connectors
   it('should successfully create charging stations', async () => {
     const result1 = await request(app)
@@ -140,7 +137,7 @@ describe('Testing Charging Infrastructure CRUD Operations', () => {
   // Update Wattage of Connector by ID
   it('should update Wattage of a connector by ID', async () => {
     const updatedWattage = await request(app)
-        .put('/charging-stations/connectors/C03')
+        .put('/charging-stations/connectors/C04')
         .send({wattage: 30});
     expect(updatedWattage.status).to.equal(200);
     expect(updatedWattage.body).to.have.property('message').to.equal('Updated successfully');
@@ -169,14 +166,31 @@ describe('Testing Charging Infrastructure CRUD Operations', () => {
 });
 
 
-describe('Testing Asset Server', ()=>{
+describe('\nTesting Asset Server\n', ()=>{
+
+  // Check if server is running without using nock
+  it('should pass if Estimation server is not running\n', async ()=>{
+    const batteryDetails={
+      powerInKW: 22,
+      batteryCapacityInKWh: 35,
+      socInPercentage: 40,
+    }
+    try{
+    await axios.get("http://localhost:2001/estimate-charging-time", 
+    {params: batteryDetails})
+    }
+    catch(e){
+      expect(e.code).to.equal('ECONNREFUSED')
+    }
+  });
+
   // Find Connectors for a given ID
   it('should find Connector for a given ID and return estimated Time', async () => {
     // mocking Estimation Server
-    nock('http://localhost:2000')
+    nock('http://localhost:2001')
         .get('/estimate-charging-time')
         .query(true)
-        .reply(200, {estimatedTime: 1.08});
+        .reply(200, {estimatedTimeInHours: 1.08});
 
     const estimatedTime = await request(app).get('/charging-stations/estimate-charging-time/C03')
         .query({
@@ -197,7 +211,7 @@ describe('Testing Asset Server', ()=>{
   });
 
   it('should return Invalid on incomplete or bad requests', async () => {
-    nock('http://localhost:2000')
+    nock('http://localhost:2001')
         .get('/estimate-charging-time')
         .query(true)
         .reply(200, {message: 'Invalid Input'});
@@ -211,16 +225,10 @@ describe('Testing Asset Server', ()=>{
 
   // DISCONNECTION
   after(async () => {
-<<<<<<< HEAD:test/test.js
     stopServer();
     await disconnectFromDB();
     await mongoServer.stop();
     nock.cleanAll();
-=======
-    await stopServer();
-    await server.close();
-    nock.cleanAll()
->>>>>>> 880436f96ac992ea0e78952b93e1296700d23eb2:test/testcrud.js
-    console.log('Disconnected from mongoDB and the server:)');
+    console.log('\nDisconnected from mongoDB and the server:)');
   });
 });
