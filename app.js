@@ -21,6 +21,8 @@ function stopServer() {
   server.close();
 }
 
-connectToDB(process.env.mongo_URI);
+(async ()=>{
+  connectToDB(process.env.mongo_URI);
+})();
 
 module.exports = {app, stopServer};
