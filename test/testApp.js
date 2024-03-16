@@ -9,7 +9,6 @@ describe('Server Initialization', () => {
   let sandbox;
 
   before(() => {
-    // Create a sandbox to manage stubs
     sandbox = sinon.createSandbox();
   });
 
@@ -28,7 +27,7 @@ describe('Server Initialization', () => {
       connectToDB: connectToDBStub,
     };
 
-    // Stub dotenv config
+    // Stubbing dotenv config
     const dotenvConfigStub = sandbox.stub().returns({parsed: {}});
 
     // Stub require statements
@@ -40,8 +39,7 @@ describe('Server Initialization', () => {
     });
 
     serverModule;
-
-    // Expectations
+    
     expect(startServerStub.calledOnce).to.be.true;
   });
 });
