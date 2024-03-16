@@ -3,7 +3,7 @@ const chargingStation=require('../models/chargeStation');
 const axios=require('axios');
 
 // server details
-const EstimationServerurl=`http://localhost:2001/estimate-charging-time`;
+const EstimationServerurl=process.env.Estimation_Server_URL;
 
 // Function to find Connector By ID
 async function getConnectorDetailsById(id, batteryCapacity, SoC) {

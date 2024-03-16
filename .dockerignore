@@ -1,0 +1,14 @@
+**/docker-compose*
+**/compose*
+**/Dockerfile*
+**/node_modules
+**/obj
+test
+coverage
+reports
+gates
+.*
+stryker.conf.json
+checkmycode.sh
+LICENSE
+README.md
